@@ -1,4 +1,4 @@
-Código corrigido — ZORK PT-BR
+<badge color="success">ZORK PT-BR · Edição corrigida</badge>
 
 <CodeBlock language="html" editable>
 <!DOCTYPE html>
@@ -6,532 +6,882 @@ Código corrigido — ZORK PT-BR
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ZORK I - Underground Empire</title>
-<style>
+<meta name="theme-color" content="#050906">
+<title>ZORK I - Grande Império Subterrâneo</title><style>
+:root {
+ --bg:#050906;
+ --panel:#101a12;
+ --green:#8cff91;
+ --gold:#e3c47a;
+ --line:#537c4c;
+ --red:#ff7777;
+}
 *{box-sizing:border-box}
 body{
- margin:0;background:#050906;color:#8cff91;
- font-family:monospace;
+ margin:0;background:var(--bg);color:var(--green);
+ font-family:"Courier New",monospace;
 }
 header{
- text-align:center;padding:20px;
- background:#101b12;border-bottom:2px solid #648c50;
+ text-align:center;padding:12px;
+ background:#101b12;border-bottom:2px solid var(--line);
 }
-h1{color:#e3c47a;font-size:34px;letter-spacing:6px}
-header p{color:#a5b9a0}
-main{max-width:1100px;margin:auto;padding:14px}
+h1{
+ color:var(--gold);font-size:32px;
+ letter-spacing:6px;margin:5px;
+}
+header p{margin:4px;font-size:12px;color:#a5b9a0}
+main{max-width:1200px;margin:auto;padding:10px}
 .panel{
- background:#101a12;border:1px solid #537c4c;
- padding:14px;margin-bottom:14px;
- box-shadow:0 0 12px #18351d;
+ background:var(--panel);border:1px solid var(--line);
+ padding:12px;margin-bottom:10px;
 }
-h2{font-size:15px;color:#e3c47a}
+h2{font-size:14px;color:var(--gold);margin:4px 0 12px}
 button{
- background:#1b3520;color:#a5ff9c;
+ background:#1b3520;color:var(--green);
  border:1px solid #75a76c;padding:10px;
- margin:3px;cursor:pointer;font-family:monospace;
+ margin:2px;cursor:pointer;font-family:inherit;
 }
 button:hover{background:#416d39;color:white}
+button:active{transform:scale(.97)}
 input{
- width:100%;padding:13px;background:#030704;
- color:#8cff91;border:1px solid #75a76c;
- font:inherit;
+ width:100%;padding:14px;background:#030704;
+ color:var(--green);border:1px solid #75a76c;
+ font:inherit;font-size:16px;
 }
+input:focus{outline:2px solid var(--gold)}
 .grid{
- display:grid;grid-template-columns:2fr 1fr;gap:12px;
+ display:grid;grid-template-columns:minmax(0,2fr) minmax(230px,1fr);
+ gap:10px;
 }
+.controls{display:flex;flex-wrap:wrap;gap:3px}
+.exit{color:var(--red);border-color:var(--red)}
 #scene{
- height:240px;position:relative;overflow:hidden;
- display:flex;align-items:center;justify-content:center;
- background:linear-gradient(#13251a,#071009);
- border:1px solid #567a4a;
+ height:210px;display:flex;align-items:center;
+ justify-content:center;font-size:95px;
+ background:radial-gradient(ellipse,#29432c,#071009);
+ border:1px solid var(--line);
+ position:relative;overflow:hidden;
 }
-#scene .picture{
- font-size:95px;z-index:2;
- filter:drop-shadow(0 0 12px #8cff91);
-}
-#scene:before{
- content:"";position:absolute;inset:0;
+#scene:after{
+ content:"";position:absolute;inset:0;pointer-events:none;
  background:repeating-linear-gradient(
- transparent 0px,transparent 3px,
- #00000020 4px
+ transparent 0px,transparent 3px,#0002 4px
  );
 }
-#scene .ground{
- position:absolute;bottom:0;height:30%;
- width:100%;background:linear-gradient(#34452b,#101a0d);
-}
+#roomName{color:var(--gold);margin-top:12px}
 #description{
- line-height:1.6;min-height:120px;
- max-height:280px;overflow:auto;
- white-space:pre-wrap;
+ height:190px;overflow-y:auto;
+ line-height:1.55;white-space:pre-wrap;
+ padding:5px;font-size:14px;
 }
+#description div{margin-bottom:5px}
 #map{
  display:grid;grid-template-columns:repeat(3,1fr);
- gap:6px;
+ gap:5px;max-height:260px;overflow:auto;
 }
-.room{
- min-height:55px;padding:8px 2px;
- background:#101b13;border:1px solid #426344;
- color:#9ec79e;font-size:11px;
+.room{font-size:10px;min-height:45px;padding:5px}
+.room.active{background:#496b36;color:white;border:2px solid var(--gold)}
+#inventory,#status{line-height:1.8;color:var(--gold);font-size:13px}
+#message{color:var(--gold);font-size:12px}
+#command{margin-bottom:7px}
+#directions{display:grid;grid-template-columns:repeat(3,1fr)}
+#directions button{min-height:43px}
+footer{text-align:center;color:#607b60;font-size:11px;padding:15px}
+#endScreen{
+ display:none;position:fixed;inset:0;z-index:10;
+ background:#030704;color:var(--green);
+ align-items:center;justify-content:center;
+ flex-direction:column;text-align:center;padding:20px;
 }
-.room.active{background:#496b36;color:white;border:2px solid #e3c47a}
-#inventory,#status{line-height:1.8;color:#e3c47a}
-.controls{display:flex;flex-wrap:wrap;gap:3px}
-#message{color:#e3c47a;font-size:12px}
-footer{text-align:center;padding:20px;color:#607b60;font-size:11px}
+#endScreen h1{color:var(--gold)}
 @media(max-width:700px){
  .grid{grid-template-columns:1fr}
  h1{font-size:26px}
- #scene{height:190px}
+ #scene{height:160px;font-size:75px}
+ #description{height:155px}
+ main{padding:6px}
+ .panel{padding:9px}
 }
-</style>
-</head>
-<body><header>
+</style></head><body><header>
 <h1>ZORK I</h1>
 <p>THE GREAT UNDERGROUND EMPIRE</p>
-<p>RETRO ADVENTURE • PORTUGUÊS</p>
-</header><main>
-<div class="panel">
+<p>AVENTURA RETRÔ EM PORTUGUÊS</p>
+</header><main><div class="panel">
 <div class="controls">
 <button onclick="toggleMusic()">♫ MÚSICA</button>
-<button onclick="sound(600)">♪ SOM</button>
+<button onclick="playSound()">♪ SOM</button>
 <button onclick="saveGame()">SALVAR</button>
 <button onclick="loadGame()">CARREGAR</button>
 <button onclick="copyMap()">COPY MAP</button>
 <button onclick="copyLog()">COPY TEXT</button>
 <button onclick="newGame()">NOVO JOGO</button>
+<button class="exit" onclick="exitGame()">SAIR DO JOGO</button>
 </div>
 <p id="message">SISTEMA PRONTO</p>
-</div><div class="grid">
-<section>
+</div><div class="grid"><section>
 <div class="panel">
 <h2>◈ CENÁRIO DA AVENTURA</h2>
-<div id="scene">
-<div class="picture" id="picture">🏚️</div>
-<div class="ground"></div>
-</div>
+<div id="scene">🏚️</div>
 <h2 id="roomName">CAMPO ABERTO</h2>
 <div id="description" aria-live="polite"></div>
 </div><div class="panel">
 <h2>◈ TERMINAL DE COMANDOS</h2>
-<input id="command" placeholder="Digite: olhar, norte, pegar chave...">
+<input id="command" autocomplete="off"
+placeholder="Digite N, S, L, O, I, OL, PE...">
 <div class="controls">
-<button onclick="execute()">EXECUTAR</button>
-<button onclick="quick('olhar')">OLHAR</button>
-<button onclick="quick('inventario')">INVENTÁRIO</button>
-<button onclick="quick('ajuda')">AJUDA</button>
+<button onclick="execute()">EXECUTAR ↵</button>
+<button onclick="quick('ol')">OLHAR</button>
+<button onclick="quick('i')">INVENTÁRIO</button>
+<button onclick="quick('aj')">AJUDA</button>
 </div>
 </div>
-</section><aside>
-<div class="panel">
+</section><aside><div class="panel">
 <h2>◈ MAPA DO IMPÉRIO</h2>
 <div id="map"></div>
-</div>
-<div class="panel">
+</div><div class="panel">
 <h2>◈ INVENTÁRIO</h2>
 <div id="inventory">Vazio</div>
-</div>
-<div class="panel">
-<h2>◈ STATUS</h2>
+</div><div class="panel">
+<h2>◈ ESTADO DO JOGADOR</h2>
 <div id="status"></div>
+</div><div class="panel">
+<h2>◈ MOVIMENTAÇÃO</h2>
+<div id="directions">
+<button onclick="move('north')">↑ N</button>
+<button disabled>◆</button>
+<button disabled>◆</button>
+<button onclick="move('west')">← O</button>
+<button disabled>◆</button>
+<button onclick="move('east')">L →</button>
+<button disabled>◆</button>
+<button onclick="move('south')">↓ S</button>
+<button disabled>◆</button>
+<button onclick="move('up')">SUBIR</button>
+<button onclick="move('down')">DESCER</button>
 </div>
-<div class="panel">
-<h2>◈ DIREÇÕES</h2>
-<div class="controls">
-<button onclick="move('north')">↑ NORTE</button>
-<button onclick="move('south')">↓ SUL</button>
-<button onclick="move('west')">← OESTE</button>
-<button onclick="move('east')">→ LESTE</button>
-<button onclick="move('up')">↗ SUBIR</button>
-<button onclick="move('down')">↘ DESCER</button>
+</div><div class="panel">
+<h2>◈ AJUDA RÁPIDA</h2>
+<div style="font-size:12px;line-height:1.8">
+N / NORTE<br>
+S / SUL<br>
+L / LESTE<br>
+O / OESTE<br>
+C / CIMA<br>
+D / DESCER<br>
+I / INVENTÁRIO<br>
+OL / OLHAR<br>
+PE / PEGAR<br>
+AB / ABRIR<br>
+US / USAR<br>
+EX / EXAMINAR<br>
+AJ / AJUDA
 </div>
-</div>
-<div class="panel">
-<h2>◈ COMANDOS</h2>
-<small>
-olhar, norte, sul, leste, oeste, subir, descer,
-pegar, abrir, ler, examinar, usar, atacar,
-inventario, ajuda, salvar, carregar
-</small>
-</div>
-</aside>
+</div></aside>
 </div>
 </main><footer>
-ZORK I RETRO REMAKE · FAN-MADE EDITION
-</footer><script>
+ZORK PT-BR · AVENTURA INDEPENDENTE INSPIRADA NOS CLÁSSICOS
+</footer><div id="endScreen">
+<h1>ZORK I</h1>
+<h2>FIM DA AVENTURA</h2>
+<p>Obrigado por explorar o Grande Império Subterrâneo!</p>
+<p id="finalScore"></p>
+<button onclick="location.reload()">JOGAR NOVAMENTE</button>
+</div><script>
+"use strict";
+
+/* =========================
+   MAPA E LOCALIDADES
+========================= */
+
 const rooms={
  field:{
- name:"Campo aberto",icon:"🏚️",
- desc:"Você está em um campo aberto a oeste de uma casa branca. Há uma caixa de correio.",
- exits:{north:"forest",east:"path",south:"river"},
- objects:["caixa de correio"]
+  name:"Campo aberto",icon:"🏚️",
+  desc:"Você está em um campo aberto a oeste de uma casa branca. Uma caixa de correio está perto da entrada.",
+  exits:{north:"forest",east:"path",south:"river"},
+  objects:["caixa de correio"]
  },
  forest:{
- name:"Floresta",icon:"🌲",
- desc:"Árvores antigas cercam você. O vento sopra entre os galhos.",
- exits:{south:"field",east:"clearing"},
- objects:["graveto"]
+  name:"Floresta",icon:"🌲",
+  desc:"Árvores antigas cercam você. O vento sopra entre os galhos.",
+  exits:{south:"field",east:"clearing"},
+  objects:["graveto"]
  },
  clearing:{
- name:"Clareira",icon:"🌳",
- desc:"Uma clareira tranquila iluminada pelo sol.",
- exits:{west:"forest",north:"hill"},
- objects:["moeda"]
+  name:"Clareira",icon:"🌳",
+  desc:"Uma clareira tranquila iluminada pelo sol. Você encontra uma moeda no chão.",
+  exits:{west:"forest",north:"hill"},
+  objects:["moeda"]
  },
  hill:{
- name:"Colina",icon:"⛰️",
- desc:"Você observa a casa branca do alto da colina.",
- exits:{south:"clearing",east:"path"},
- objects:[]
+  name:"Colina",icon:"⛰️",
+  desc:"Você observa a casa branca do alto da colina.",
+  exits:{south:"clearing",east:"path"},
+  objects:[]
  },
  path:{
- name:"Caminho da casa",icon:"🏠",
- desc:"Você está atrás da casa branca. Uma janela está aberta.",
- exits:{west:"field",north:"behind"},
- objects:[]
+  name:"Caminho da casa",icon:"🏠",
+  desc:"Um caminho passa atrás da casa branca.",
+  exits:{west:"field",north:"behind"},
+  objects:[]
  },
  behind:{
- name:"Parte traseira",icon:"🚪",
- desc:"Há uma pequena entrada que leva ao porão.",
- exits:{south:"path",down:"cellar"},
- objects:["chave"]
+  name:"Parte traseira",icon:"🚪",
+  desc:"Há uma pequena entrada que leva ao porão.",
+  exits:{south:"path",down:"cellar"},
+  objects:["chave"]
  },
  cellar:{
- name:"Porão",icon:"🕯️",
- desc:"Um porão escuro e silencioso. Um corredor segue para leste.",
- exits:{up:"behind",east:"gallery"},
- objects:["lanterna","corda"]
+  name:"Porão",icon:"🕯️",
+  desc:"Um porão escuro e silencioso. Um corredor segue para leste.",
+  exits:{up:"behind",east:"gallery"},
+  objects:["lanterna","corda"]
  },
  gallery:{
- name:"Galeria subterrânea",icon:"🪨",
- desc:"Uma galeria de pedra se estende na escuridão.",
- exits:{west:"cellar",east:"cave",north:"maze"},
- objects:["moeda de prata"]
+  name:"Galeria subterrânea",icon:"🪨",
+  desc:"Uma galeria de pedra se estende pela escuridão.",
+  exits:{west:"cellar",east:"cave",north:"maze"},
+  objects:["moeda de prata"]
  },
  cave:{
- name:"Caverna de cristais",icon:"💎",
- desc:"Cristais brilham nas paredes da caverna.",
- exits:{west:"gallery",down:"riverbank"},
- objects:["cristal"]
+  name:"Caverna de cristais",icon:"💎",
+  desc:"Cristais brilham nas paredes da caverna.",
+  exits:{west:"gallery",down:"riverbank"},
+  objects:["cristal"]
  },
  river:{
- name:"Margem do rio",icon:"🌊",
- desc:"Um rio profundo corre diante de você.",
- exits:{north:"field",east:"riverbank"},
- objects:[]
+  name:"Margem do rio",icon:"🌊",
+  desc:"Um rio profundo corre diante de você.",
+  exits:{north:"field",east:"riverbank"},
+  objects:[]
  },
  riverbank:{
- name:"Rio subterrâneo",icon:"🌊",
- desc:"Você está diante de um rio subterrâneo.",
- exits:{west:"river",up:"cave",east:"temple"},
- objects:["moeda de ouro"]
+  name:"Rio subterrâneo",icon:"🌊",
+  desc:"Você está diante de um rio subterrâneo. Uma passagem leva ao templo.",
+  exits:{west:"river",up:"cave",east:"temple"},
+  objects:["moeda de ouro"]
  },
  maze:{
- name:"Labirinto",icon:"🌀",
- desc:"Um labirinto de pedra. Os corredores parecem todos iguais.",
- exits:{south:"gallery",east:"maze2",west:"maze3"},
- objects:[]
+  name:"Labirinto",icon:"🌀",
+  desc:"Um labirinto de pedra. Os corredores parecem todos iguais.",
+  exits:{south:"gallery",east:"maze2",west:"maze3"},
+  objects:[]
  },
  maze2:{
- name:"Corredor do labirinto",icon:"🕳️",
- desc:"Você está em um corredor estreito.",
- exits:{west:"maze",north:"maze3"},
- objects:[]
+  name:"Corredor do labirinto",icon:"🕳️",
+  desc:"Você está em um corredor estreito.",
+  exits:{west:"maze",north:"maze3"},
+  objects:[]
  },
  maze3:{
- name:"Câmara secreta",icon:"🚪",
- desc:"Uma câmara escondida contém um baú antigo.",
- exits:{east:"maze2",south:"maze"},
- objects:["baú"]
+  name:"Câmara secreta",icon:"🚪",
+  desc:"Uma câmara escondida contém um baú antigo.",
+  exits:{east:"maze2",south:"maze"},
+  objects:["baú"]
  },
  temple:{
- name:"Templo antigo",icon:"🏛️",
- desc:"Um guardião de pedra protege um antigo tesouro.",
- exits:{west:"riverbank",north:"treasure"},
- objects:["estátua"]
+  name:"Templo antigo",icon:"🏛️",
+  desc:"Um guardião de pedra protege um antigo tesouro.",
+  exits:{west:"riverbank",north:"treasure"},
+  objects:["estátua"]
  },
  treasure:{
- name:"Sala dos tesouros",icon:"👑",
- desc:"Você chegou ao coração do império subterrâneo!",
- exits:{south:"temple"},
- objects:["coroa"]
+  name:"Sala dos tesouros",icon:"👑",
+  desc:"Você chegou ao coração do império subterrâneo! Um tesouro magnífico está diante de você.",
+  exits:{south:"temple"},
+  objects:["coroa"]
  }
 };
 
-const originalObjects=Object.fromEntries(
- Object.entries(rooms).map(([k,r])=>[k,[...r.objects]])
+const initialObjects=Object.fromEntries(
+ Object.entries(rooms).map(([id,r])=>[id,[...r.objects]])
 );
 
-let current="field",inventory=[],score=0,turns=0;
-let lantern=false,chest=false,mailbox=false;
-let guardian=false,musicOn=false,audio=null;
+/* =========================
+   ESTADO DO JOGO
+========================= */
+
+let current="field";
+let inventory=[];
+let score=0;
+let turns=0;
+let lanternOn=false;
+let chestOpened=false;
+let mailboxOpened=false;
+let guardianDefeated=false;
+let musicOn=false;
+let audio=null;
+let musicTimer=null;
 let history=[];
+let gameEnded=false;
 
 const $=id=>document.getElementById(id);
 
-function say(t){
- const d=document.createElement("div");
- d.textContent="> "+t;
- $("description").appendChild(d);
+/* =========================
+   TEXTO E INTERFACE
+========================= */
+
+function say(text){
+ const line=document.createElement("div");
+ line.textContent="> "+text;
+ $("description").appendChild(line);
  $("description").scrollTop=$("description").scrollHeight;
- history.push("> "+t);
-}
-
-function sound(freq=440){
- try{
-  audio=audio||new AudioContext();
-  const o=audio.createOscillator();
-  const g=audio.createGain();
-  o.connect(g);g.connect(audio.destination);
-  o.frequency.value=freq;
-  g.gain.setValueAtTime(.06,audio.currentTime);
-  g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.25);
-  o.start();o.stop(audio.currentTime+.25);
- }catch(e){}
-}
-
-function toggleMusic(){
- musicOn=!musicOn;
- $("message").textContent=musicOn?"MÚSICA LIGADA":"MÚSICA DESLIGADA";
- if(musicOn){
-  sound(220);
-  let notes=[220,261,329,293,196,261];
-  let i=0;
-  window.clearInterval(window.musicTimer);
-  window.musicTimer=setInterval(()=>{
-   if(musicOn)sound(notes[i++%notes.length]);
-  },650);
- }else window.clearInterval(window.musicTimer);
+ history.push("> "+text);
 }
 
 function update(){
- $("picture").textContent=rooms[current].icon;
- $("roomName").textContent=rooms[current].name.toUpperCase();
- $("inventory").textContent=inventory.join(", ")||"Vazio";
- $("status").innerHTML=
- "LOCAL: "+rooms[current].name+
- "<br>PONTOS: "+score+
- "<br>MOVIMENTOS: "+turns;
+ const room=rooms[current];
 
- $("map").innerHTML="";
+ $("scene").textContent=room.icon;
+ $("roomName").textContent=room.name.toUpperCase();
+
+ $("inventory").textContent=
+ inventory.length?inventory.join(" • "):"Vazio";
+
+ $("status").innerHTML=
+ "LOCAL: "+room.name+
+ "<br>PONTOS: "+score+
+ "<br>MOVIMENTOS: "+turns+
+ "<br>LANTERNA: "+(lanternOn?"ACESa":"APAGADA");
+
+ const map=$("map");
+ map.innerHTML="";
+
  Object.entries(rooms).forEach(([id,r])=>{
   const b=document.createElement("button");
   b.className="room"+(id===current?" active":"");
   b.textContent=r.name;
   b.onclick=()=>{
-   if(id===current)look();
-   else if(Object.values(rooms[current].exits).includes(id))moveTo(id);
-   else say("Esse local não está conectado diretamente.");
+   if(id===current){look();return;}
+   if(Object.values(rooms[current].exits).includes(id)){
+    moveTo(id);
+   }else{
+    say("Esse local não está conectado diretamente.");
+   }
   };
-  $("map").appendChild(b);
+  map.appendChild(b);
  });
 }
 
 function look(){
  say(rooms[current].desc);
- if(rooms[current].objects.length)
- say("Você vê: "+rooms[current].objects.join(", "));
+
+ if(rooms[current].objects.length){
+  say("Você vê: "+rooms[current].objects.join(", ")+".");
+ }
+
  update();
 }
 
+/* =========================
+   ÁUDIO
+========================= */
+
+function sound(freq=440,duration=.2){
+ try{
+  audio=audio||new(window.AudioContext||window.webkitAudioContext)();
+  if(audio.state==="suspended")audio.resume();
+
+  const oscillator=audio.createOscillator();
+  const gain=audio.createGain();
+
+  oscillator.connect(gain);
+  gain.connect(audio.destination);
+
+  oscillator.type="triangle";
+  oscillator.frequency.value=freq;
+
+  gain.gain.setValueAtTime(.06,audio.currentTime);
+  gain.gain.exponentialRampToValueAtTime(
+   .001,audio.currentTime+duration
+  );
+
+  oscillator.start();
+  oscillator.stop(audio.currentTime+duration);
+ }catch(e){}
+}
+
+function playSound(){
+ sound(600);
+ setTimeout(()=>sound(420),180);
+}
+
+function toggleMusic(){
+ musicOn=!musicOn;
+
+ clearInterval(musicTimer);
+
+ $("message").textContent=
+ musicOn?"MÚSICA LIGADA":"MÚSICA DESLIGADA";
+
+ if(musicOn){
+  const notes=[196,220,261,293,246,164,220,196];
+  let i=0;
+
+  sound(196);
+
+  musicTimer=setInterval(()=>{
+   if(musicOn)sound(notes[i++%notes.length],.35);
+  },650);
+ }
+}
+
+/* =========================
+   MOVIMENTAÇÃO
+========================= */
+
 function moveTo(id){
- current=id;turns++;
+ if(gameEnded)return;
+
+ current=id;
+ turns++;
+
  sound(300);
  look();
 }
 
-function move(dir){
- const id=rooms[current].exits[dir];
- if(!id){say("Não há passagem nessa direção.");sound(120);return;}
- if(id==="maze"&&!lantern){
+function move(direction){
+ if(gameEnded)return;
+
+ const destination=rooms[current].exits[direction];
+
+ if(!destination){
+  say("Não há passagem nessa direção.");
+  sound(120);
+  return;
+ }
+
+ if(destination==="maze"&&!lanternOn){
   say("Está escuro demais! Você precisa de uma lanterna acesa.");
   return;
  }
- if(id==="riverbank"&&!inventory.includes("corda")){
+
+ if(destination==="riverbank"&&!inventory.includes("corda")){
   say("A correnteza é perigosa. Você precisa de uma corda.");
   return;
  }
- moveTo(id);
+
+ moveTo(destination);
 }
 
-function has(x){
- return inventory.includes(x);
+/* =========================
+   OBJETOS
+========================= */
+
+function has(item){
+ return inventory.includes(item);
 }
 
-function take(x){
- const r=rooms[current];
- const obj=r.objects.find(v=>v.includes(x));
- if(!obj){say("Não existe esse objeto aqui.");return;}
- if(obj==="caixa de correio"||obj==="baú"){
+function take(item){
+ const room=rooms[current];
+
+ const object=room.objects.find(
+  x=>x.toLowerCase().includes(item)
+ );
+
+ if(!object){
+  say("Não existe esse objeto aqui.");
+  return;
+ }
+
+ if(object==="caixa de correio"||object==="baú"){
   say("Você não pode carregar isso.");
   return;
  }
- r.objects=r.objects.filter(v=>v!==obj);
- inventory.push(obj);
+
+ room.objects=room.objects.filter(x=>x!==object);
+ inventory.push(object);
+
  score+=5;
- say("Você pegou: "+obj);
- sound(650);update();
+
+ say("Você pegou: "+object);
+ sound(650);
+ update();
 }
 
-function open(x){
- if(x.includes("caixa")&&current==="field"){
-  if(mailbox){say("A caixa está vazia.");return;}
-  mailbox=true;
+function open(item){
+ if(item.includes("caixa")&&current==="field"){
+  if(mailboxOpened){
+   say("A caixa de correio está vazia.");
+   return;
+  }
+
+  mailboxOpened=true;
+  rooms.field.objects=rooms.field.objects.filter(
+   x=>x!=="caixa de correio"
+  );
+
   inventory.push("folheto");
+  score+=5;
+
   say("Você abriu a caixa e encontrou um folheto.");
-  score+=5;update();return;
+  update();
+  return;
  }
- if(x.includes("baú")&&current==="maze3"){
-  if(!has("chave")){say("O baú está trancado. Você precisa de uma chave.");return;}
-  if(chest){say("O baú já está vazio.");return;}
-  chest=true;
-  inventory.push("tesouro antigo");
+
+ if(item.includes("baú")&&current==="maze3"){
+  if(!has("chave")){
+   say("O baú está trancado. Você precisa de uma chave.");
+   return;
+  }
+
+  if(chestOpened){
+   say("O baú já está vazio.");
+   return;
+  }
+
+  chestOpened=true;
   rooms.maze3.objects=[];
+  inventory.push("tesouro antigo");
   score+=20;
-  say("O baú abriu! Você encontrou um tesouro!");
-  update();return;
+
+  say("O baú abriu! Você encontrou um tesouro antigo.");
+  update();
+  return;
  }
+
  say("Não é possível abrir isso.");
 }
 
-function use(x){
- if(x.includes("lanterna")){
-  if(!has("lanterna")){say("Você não tem uma lanterna.");return;}
-  lantern=!lantern;
-  say("Lanterna "+(lantern?"acesa.":"apagada."));
-  sound(lantern?700:180);return;
- }
- if(x.includes("chave")){
-  say("Talvez a chave abra alguma coisa.");
+function use(item){
+ if(item.includes("lanterna")){
+  if(!has("lanterna")){
+   say("Você não tem uma lanterna.");
+   return;
+  }
+
+  lanternOn=!lanternOn;
+
+  say("Lanterna "+(lanternOn?"acesa.":"apagada."));
+  sound(lanternOn?700:180);
+  update();
   return;
  }
+
+ if(item.includes("chave")){
+  if(!has("chave")){
+   say("Você não possui a chave.");
+   return;
+  }
+
+  say("Uma chave antiga. Talvez abra o baú.");
+  return;
+ }
+
+ if(item.includes("corda")){
+  if(has("corda"))say("Você está carregando uma corda resistente.");
+  else say("Você não possui uma corda.");
+  return;
+ }
+
  say("Você não consegue usar isso agora.");
 }
 
-function examine(x){
- if(x.includes("casa"))say("Uma casa branca antiga, com tábuas nas janelas.");
- else if(x.includes("chave"))say("Uma chave de metal antiga.");
- else if(x.includes("folheto"))say("Bem-vindo ao Grande Império Subterrâneo!");
- else if(x.includes("lanterna"))say("Uma lanterna que pode iluminar o caminho.");
- else if(x.includes("guardião"))say("Uma criatura de pedra muito forte.");
- else say("Você não percebe nada especial.");
+function examine(item){
+ if(item.includes("casa")){
+  say("Uma casa branca antiga, com janelas fechadas.");
+ }else if(item.includes("chave")){
+  say("Uma chave de metal antiga.");
+ }else if(item.includes("folheto")){
+  say("Bem-vindo ao Grande Império Subterrâneo!");
+ }else if(item.includes("lanterna")){
+  say("Uma lanterna que pode iluminar o caminho.");
+ }else if(item.includes("guardião")){
+  say("Uma criatura de pedra muito forte.");
+ }else if(item.includes("coroa")){
+  say("Uma coroa antiga, coberta de pedras preciosas.");
+ }else{
+  say("Você não percebe nada especial.");
+ }
 }
 
-function execute(){
- const input=$("command");
- const cmd=input.value.trim().toLowerCase();
- input.value="";
- if(!cmd)return;
- say(cmd);
- const a=cmd.split(/\s+/);
- const verb=a[0],obj=a.slice(1).join(" ");
+/* =========================
+   COMANDOS
+========================= */
 
- const dirs={
- norte:"north",sul:"south",leste:"east",oeste:"west",
- subir:"up",descer:"down",
- north:"north",south:"south",east:"east",west:"west",
- up:"up",down:"down"
+function execute(){
+ if(gameEnded)return;
+
+ const input=$("command");
+ const command=input.value.trim().toLowerCase();
+
+ input.value="";
+
+ if(!command)return;
+
+ say(command);
+
+ const parts=command.split(/\s+/);
+ const verb=parts[0];
+ const object=parts.slice(1).join(" ");
+
+ const directions={
+  n:"north",norte:"north",north:"north",
+  s:"south",sul:"south",south:"south",
+  l:"east",leste:"east",east:"east",
+  o:"west",oeste:"west",west:"west",
+  c:"up",cima:"up",subir:"up",up:"up",
+  d:"down",descer:"down",down:"down"
  };
 
- if(dirs[verb])return move(dirs[verb]);
- if(verb==="ir")return move(dirs[obj]);
- if(["olhar","look"].includes(verb))return look();
- if(["inventario","inventário","i"].includes(verb)){
+ if(directions[verb])return move(directions[verb]);
+
+ if(verb==="ir"){
+  const direction=directions[object]||object;
+  return move(direction);
+ }
+
+ if(["i","inv","inventario","inventário"].includes(verb)){
   say("Você carrega: "+(inventory.join(", ")||"nada"));
   return;
  }
- if(["pegar","pegue","take"].includes(verb))return take(obj);
- if(verb==="abrir")return open(obj);
- if(["usar","acender"].includes(verb))return use(obj);
- if(["examinar","exam","examinar"].includes(verb))return examine(obj);
- if(verb==="ler"){
-  if(has("folheto"))say("BEM-VINDO AO GRANDE IMPÉRIO SUBTERRÂNEO!");
-  else say("Você não tem nada para ler.");
+
+ if(["ol","olhar","look","lugar"].includes(verb)){
+  return look();
+ }
+
+ if(["pe","pegar","pegue","take","get"].includes(verb)){
+  return take(object);
+ }
+
+ if(["ab","abrir","open"].includes(verb)){
+  return open(object);
+ }
+
+ if(["us","usar","use","acender"].includes(verb)){
+  return use(object);
+ }
+
+ if(["ex","examinar","exam","inspecionar"].includes(verb)){
+  return examine(object);
+ }
+
+ if(["le","ler","read"].includes(verb)){
+  if(has("folheto")){
+   say("BEM-VINDO AO GRANDE IMPÉRIO SUBTERRÂNEO! A aventura espera por você.");
+  }else{
+   say("Você não tem nada para ler.");
+  }
   return;
  }
- if(verb==="ajuda"||verb==="help"){
-  say("Comandos: norte, sul, leste, oeste, subir, descer, olhar, pegar, abrir, usar, examinar, ler, inventario.");
+
+ if(["aj","ajuda","help","?"].includes(verb)){
+  say("N/NORTE, S/SUL, L/LESTE, O/OESTE, C/CIMA, D/DESCER, I/INVENTÁRIO, OL/OLHAR, PE/PEGAR, AB/ABRIR, US/USAR, EX/EXAMINAR, LE/LER.");
   return;
  }
- if(verb==="salvar")return saveGame();
- if(verb==="carregar")return loadGame();
- if(verb==="pontuacao"){say("Pontos: "+score);return;}
- say("Não entendi. Digite AJUDA para consultar os comandos.");
+
+ if(["sa","salvar","save"].includes(verb)){
+  return saveGame();
+ }
+
+ if(["ca","carregar","load"].includes(verb)){
+  return loadGame();
+ }
+
+ if(["po","pontos","pontuacao","pontuação"].includes(verb)){
+  say("Sua pontuação é "+score+".");
+  return;
+ }
+
+ say("Não entendi. Digite AJ para ver os comandos.");
 }
 
-function quick(cmd){
- $("command").value=cmd;execute();
+function quick(command){
+ $("command").value=command;
+ execute();
 }
+
+/* =========================
+   SALVAR E CARREGAR
+========================= */
 
 function saveGame(){
- const data={current,inventory,score,turns,lantern,chest,mailbox,guardian,
- objects:Object.fromEntries(Object.entries(rooms).map(([k,r])=>[k,r.objects]))};
- localStorage.setItem("zorkPTBR",JSON.stringify(data));
- $("message").textContent="JOGO SALVO!";
- sound(600);
+ try{
+  const data={
+   current,inventory,score,turns,
+   lanternOn,chestOpened,mailboxOpened,
+   guardianDefeated,
+   objects:Object.fromEntries(
+    Object.entries(rooms).map(
+     ([id,r])=>[id,r.objects]
+    )
+   ),
+   history
+  };
+
+  localStorage.setItem("zorkPTBR",JSON.stringify(data));
+
+  $("message").textContent="JOGO SALVO!";
+  sound(600);
+ }catch(e){
+  $("message").textContent="ERRO AO SALVAR";
+ }
 }
 
 function loadGame(){
  try{
-  const d=JSON.parse(localStorage.getItem("zorkPTBR"));
-  if(!d)throw Error();
-  Object.assign({},{});
-  current=d.current;inventory=d.inventory;score=d.score;
-  turns=d.turns;lantern=d.lantern;chest=d.chest;
-  mailbox=d.mailbox;guardian=d.guardian;
-  Object.entries(d.objects).forEach(([k,v])=>rooms[k].objects=v);
+  const data=JSON.parse(localStorage.getItem("zorkPTBR"));
+
+  if(!data)throw Error("save");
+
+  if(!rooms[data.current])throw Error("room");
+
+  current=data.current;
+  inventory=data.inventory||[];
+  score=data.score||0;
+  turns=data.turns||0;
+
+  lanternOn=!!data.lanternOn;
+  chestOpened=!!data.chestOpened;
+  mailboxOpened=!!data.mailboxOpened;
+  guardianDefeated=!!data.guardianDefeated;
+
+  Object.entries(data.objects||{}).forEach(([id,objects])=>{
+   if(rooms[id])rooms[id].objects=objects;
+  });
+
+  history=data.history||[];
+
   $("description").innerHTML="";
-  say("JOGO CARREGADO!");
+
+  say("JOGO CARREGADO COM SUCESSO!");
   look();
- }catch(e){say("Nenhum jogo salvo encontrado.");}
+
+  $("message").textContent="JOGO CARREGADO!";
+ }catch(e){
+  say("Nenhum jogo salvo encontrado.");
+ }
+}
+
+/* =========================
+   COPIAR
+========================= */
+
+function copy(text){
+ if(navigator.clipboard&&window.isSecureContext){
+  navigator.clipboard.writeText(text)
+   .then(()=>{$("message").textContent="COPIADO!"})
+   .catch(()=>fallbackCopy(text));
+ }else{
+  fallbackCopy(text);
+ }
+}
+
+function fallbackCopy(text){
+ const el=document.createElement("textarea");
+
+ el.value=text;
+ document.body.appendChild(el);
+ el.select();
+
+ try{
+  document.execCommand("copy");
+  $("message").textContent="COPIADO!";
+ }catch(e){
+  $("message").textContent="NÃO FOI POSSÍVEL COPIAR";
+ }
+
+ el.remove();
 }
 
 function copyMap(){
- const t=Object.entries(rooms).map(([k,r])=>
- r.name+": "+Object.entries(r.exits).map(([d,v])=>d+" -> "+rooms[v].name).join(", ")
+ const text=Object.entries(rooms).map(([id,r])=>
+  r.name+": "+
+  Object.entries(r.exits).map(
+   ([direction,destination])=>
+    direction+" -> "+rooms[destination].name
+  ).join(", ")
  ).join("\n");
- copy(t);
+
+ copy(text);
 }
 
-function copyLog(){copy(history.join("\n"));}
-
-function copy(t){
- if(navigator.clipboard&&window.isSecureContext){
-  navigator.clipboard.writeText(t).then(()=>{$("message").textContent="COPIADO!"})
-  .catch(()=>fallback(t));
- }else fallback(t);
+function copyLog(){
+ copy(history.join("\n"));
 }
 
-function fallback(t){
- const el=document.createElement("textarea");
- el.value=t;document.body.appendChild(el);
- el.select();document.execCommand("copy");el.remove();
- $("message").textContent="COPIADO!";
-}
+/* =========================
+   NOVO JOGO
+========================= */
 
 function newGame(){
  if(!confirm("Começar uma nova aventura?"))return;
- Object.entries(rooms).forEach(([k,r])=>r.objects=[...originalObjects[k]]);
- current="field";inventory=[];score=0;turns=0;
- lantern=false;chest=false;mailbox=false;guardian=false;
- history=[];$("description").innerHTML="";
+
+ Object.entries(rooms).forEach(([id,r])=>{
+  r.objects=[...initialObjects[id]];
+ });
+
+ current="field";
+ inventory=[];
+ score=0;
+ turns=0;
+
+ lanternOn=false;
+ chestOpened=false;
+ mailboxOpened=false;
+ guardianDefeated=false;
+
+ history=[];
+
+ $("description").innerHTML="";
+
  say("BEM-VINDO AO GRANDE IMPÉRIO SUBTERRÂNEO!");
  look();
+
+ $("message").textContent="NOVA AVENTURA";
 }
 
-$("command").addEventListener("keydown",e=>{
- if(e.key==="Enter")execute();
+/* =========================
+   SAIR DO JOGO
+========================= */
+
+function exitGame(){
+ if(!confirm("Deseja realmente sair do ZORK I?"))return;
+
+ musicOn=false;
+ clearInterval(musicTimer);
+
+ $("finalScore").textContent="PONTUAÇÃO FINAL: "+score;
+
+ $("endScreen").style.display="flex";
+}
+
+/* =========================
+   INICIALIZAÇÃO
+========================= */
+
+$("command").addEventListener("keydown",event=>{
+ if(event.key==="Enter")execute();
 });
 
 say("BEM-VINDO AO ZORK I!");
+say("Digite OL para observar o local ou AJ para consultar os comandos.");
 look();
+
 </script></body>
 </html>
-</CodeBlock>3. Depois de salvar
+</CodeBlock>Como publicar no seu repositório
 
-Abra seu jogo:
+1. Abrir seu arquivo index.html.
 
-<Link url="https://leonaruto256-droid.github.io/Zork-ptbr/" title="🎮 JOGAR ZORK PT-BR"/>Se ainda aparecer somente texto, confira se o arquivo começa exatamente com <!DOCTYPE html> e não com ```html.
 
-Importante: esta versão já tem cenários gráficos em emoji, mapa clicável, comandos, sons sintetizados e salvamento. Ainda não contém todas as salas, enigmas ou recursos do Zork original.
+2. Apagar o conteúdo antigo.
+
+
+3. Colar o código completo.
+
+
+4. Clicar em Commit changes.
+
+
+5. Aguardar a atualização do GitHub Pages.
+
+
+
+Seu endereço:
+
+<row align="center">
+  <icon name="gamepad-2" color="success" size="xl"/>
+  <Link url="https://leonaruto256-droid.github.io/Zork-ptbr/" title="JOGAR ZORK I"/>
+</row>Comandos rápidos: N, S, L, O, C, D, I, OL, PE, AB, US, EX, AJ.
+
+Observação: esta é uma aventura independente com 16 localidades, não a reprodução integral do jogo original de 1980. As imagens são emojis e a música é sintetizada pelo navegador.
